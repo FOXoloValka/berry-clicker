@@ -3,188 +3,610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дикая Ягода - Симулятор Шопоголика</title>
-    <!-- Официальный скрипт Telegram WebApp -->
+    <title>VibeBerries — Дофаминовый Маркетплейс</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Официальный скрипт рекламной сети Adsgram -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background-color: #1a1a2e;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #f4f4f4;
+            color: #333333;
+            padding-bottom: 40px;
             user-select: none;
         }
+        /* Верхняя навигация (Top Bar) */
+        .top-bar {
+            background-color: #a90088;
+            color: #ffffff;
+            font-size: 12px;
+            padding: 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-links span {
+            margin: 0 8px;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .top-links { display: none; }
+        }
+        /* Главная шапка (Header) */
         .header {
-            background-color: #4a0e78;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
+            background: linear-gradient(90deg, #cb11ab 0%, #4a0e78 100%);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        h1 {
-            margin: 0;
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+        }
+        .burger {
             font-size: 22px;
-            color: #e0b3ff;
+            background: rgba(255,255,255,0.2);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
         }
-        .balance-container {
-            font-size: 28px;
+        /* Поисковая строка - Главный Кликер */
+        .search-bar {
+            flex-grow: 1;
+            background-color: #ffffff;
+            height: 44px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.08s, background-color 0.08s;
+            border: 2px solid transparent;
+        }
+        .search-bar:active {
+            transform: scale(0.98);
+            background-color: #f8e6ff;
+            border-color: #cb11ab;
+        }
+        .search-text {
+            color: #888888;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-cam {
+            font-size: 18px;
+        }
+        /* Навигация справа */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #ffffff;
+            font-size: 11px;
+            text-align: center;
+        }
+        .nav-item {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .nav-icon {
+            font-size: 20px;
+        }
+        .cart-balance {
+            background-color: #ff0055;
+            padding: 2px 6px;
+            border-radius: 10px;
             font-weight: bold;
-            margin: 20px 0;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        /* Игровая панель статистики (Дофамин и Доход) */
+        .stats-banner {
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 10px 16px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: 2px solid #cb11ab;
+        }
+        .stat-box {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
             color: #00ffcc;
         }
-        .click-btn {
-            background: linear-gradient(135deg, #8a2be2, #4a0e78);
-            border: 3px solid #cb80ff;
-            border-radius: 50%;
-            width: 200px;
-            height: 200px;
-            font-size: 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6);
-            transition: transform 0.1s;
-            margin-bottom: 25px;
+        /* Сетка товаров (Product Grid) */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+            padding: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .click-btn:active {
-            transform: scale(0.93);
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+            }
         }
-        .shop-section {
-            background-color: #16213e;
-            padding: 15px;
+        /* Карточка товара */
+        .card {
+            background: #ffffff;
             border-radius: 12px;
-            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s;
         }
-        .upgrade-btn, .ad-btn {
-            background-color: #0f3460;
-            border: 1px solid #00ffcc;
-            color: #ffffff;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        .img-wrapper {
+            position: relative;
             width: 100%;
-            margin-bottom: 10px;
+            padding-top: 130%;
+            background-color: #eeeeee;
+            overflow: hidden;
+        }
+        .img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .discount-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background-color: #ff0055;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .heart-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.8);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .card-content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .price-new {
+            font-size: 18px;
+            font-weight: 900;
+            color: #cb11ab;
+        }
+        .price-old {
+            font-size: 13px;
+            color: #888888;
+            text-decoration: line-through;
+        }
+        .hot-sale {
+            background-color: #cb11ab;
+            color: #ffffff;
+            font-size: 10px;
             font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
+            margin-bottom: 6px;
         }
-        .ad-btn {
-            background: linear-gradient(135deg, #00b4db, #0083b0);
+        .title {
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .rating {
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 10px;
+        }
+        .rating strong {
+            color: #ff9900;
+        }
+        .income-tag {
+            font-size: 11px;
+            color: #00aa00;
+            font-weight: bold;
+            background: #e8ffe8;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .buy-btn {
+            background-color: #cb11ab;
+            color: #ffffff;
             border: none;
-            box-shadow: 0 4px 15px rgba(0, 180, 219, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: auto;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .upgrade-btn:disabled {
-            border-color: #555555;
-            color: #777777;
+        .buy-btn:hover {
+            background-color: #a90088;
+        }
+        .buy-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        /* Всплывающее уведомление (Toast) */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333333;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
+    <div class="top-bar">
+        <span>📍 Москва</span>
+        <div class="top-links">
+            <span>Wibes</span>
+            <span>Отели</span>
+            <span>Для бизнеса</span>
+            <span>Еаптека</span>
+            <span>Работа в Vibe</span>
+        </div>
+        <span>🇷🇺 RUB</span>
+    </div>
+
     <div class="header">
-        <h1>📦 ПВЗ «Дикая Ягода»</h1>
-        <p style="margin: 5px 0 0 0; font-size: 14px; color: #ccc;">Скупай хлам — получай дофамин!</p>
+        <div class="logo-area" onclick="addTapMoney()">
+            <div class="burger">☰</div>
+            <div>VibeBerries</div>
+        </div>
+        
+        <div class="search-bar" id="searchClicker" onclick="addTapMoney()">
+            <div class="search-text">
+                <span>🔍</span>
+                <span>Найти на VibeBerries <strong style="color:#cb11ab;">(+100 ₽/тап)</strong></span>
+            </div>
+            <span class="search-cam">📷</span>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-item" id="adButton">
+                <span class="nav-icon">📺</span>
+                <span>+5 000 ₽</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">🛒</span>
+                <span>Корзина</span>
+                <div class="cart-balance" id="balanceDisplay">0 ₽</div>
+            </div>
+        </div>
     </div>
 
-    <div class="balance-container">
-        <span id="balance">0</span> 🫐
+    <div class="stats-banner">
+        <div class="stat-box">
+            <div>Уровень дофамина</div>
+            <div class="stat-value" id="dopamineDisplay">0% 🔥</div>
+        </div>
+        <div class="stat-box">
+            <div>Пассивный доход</div>
+            <div class="stat-value" id="incomeDisplay">+0 ₽/сек</div>
+        </div>
+        <div class="stat-box">
+            <div>Куплено товаров</div>
+            <div class="stat-value" id="itemsDisplay">0 шт.</div>
+        </div>
     </div>
 
-    <button class="click-btn" id="clickBtn">ЗАБРАТЬ ПОСЫЛКУ<br><span style="font-size: 14px;">(+1 к балансу)</span></button>
-
-    <div class="shop-section">
-        <button class="ad-btn" id="adBtn">📺 Смотреть рекламу (+1000 🫐)</button>
-        <button class="upgrade-btn" id="upgradeBtn">🛒 Купить чехол для пульта (+5 к клику) — 50 🫐</button>
+    <div class="grid-container" id="productGrid">
+        <!-- Карточки товаров генерируются через JS -->
     </div>
+
+    <div class="toast" id="toast">💥 Товар куплен! Дофамин повышен!</div>
 
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем игру на весь экран смартфона
+        tg.expand();
         tg.ready();
 
-        // Инициализация рекламного блока Adsgram
-        // Замечание: Номер "int-1234" ниже нужно будет заменить на твой реальный ID блока из кабинета Adsgram
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "int-1234" }) : null;
 
-        // Игровая логика и переменные
-        let balance = parseInt(localStorage.getItem('berry_balance')) || 0;
-        let clickPower = parseInt(localStorage.getItem('berry_power')) || 1;
-        let upgradeCost = parseInt(localStorage.getItem('berry_cost')) || 50;
+        // Игровое состояние
+        let balance = parseInt(localStorage.getItem('vb_balance')) || 1000;
+        let incomePerSec = parseInt(localStorage.getItem('vb_income')) || 0;
+        let dopamine = parseInt(localStorage.getItem('vb_dopamine')) || 0;
+        let totalItems = parseInt(localStorage.getItem('vb_items')) || 0;
 
-        const balanceEl = document.getElementById('balance');
-        const clickBtn = document.getElementById('clickBtn');
-        const upgradeBtn = document.getElementById('upgradeBtn');
-        const adBtn = document.getElementById('adBtn');
+        // Каталог товаров (копия со скриншота + новые дофаминовые позиции)
+        const products = [
+            {
+                id: 1,
+                title: "NAiRY / Шапка осенне зимняя вязаная без подклады",
+                price: 1042,
+                oldPrice: 3500,
+                discount: "-69%",
+                rating: "4,9",
+                reviews: 663,
+                income: 15,
+                img: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 2,
+                title: "Пресс для картофеля и ягод из нержавеющей стали",
+                price: 1460,
+                oldPrice: 3394,
+                discount: "-56%",
+                rating: "4,9",
+                reviews: 9,
+                income: 25,
+                img: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 3,
+                title: "RITTER / Люстра потолочная светодиодная для гостиной",
+                price: 2381,
+                oldPrice: 7849,
+                discount: "-69%",
+                rating: "4,9",
+                reviews: 705,
+                income: 45,
+                img: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 4,
+                title: "Прошитая Nintendo Switch OLED 256 ГБ с играми",
+                price: 35061,
+                oldPrice: 53640,
+                discount: "-34%",
+                rating: "5,0",
+                reviews: 1420,
+                income: 650,
+                img: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 5,
+                title: "JOYCITY / Шапка женская зимняя бини теплая",
+                price: 365,
+                oldPrice: 1110,
+                discount: "-66%",
+                rating: "4,9",
+                reviews: 329,
+                income: 5,
+                img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 6,
+                title: "Толкушка для пюре металлическая эргономичная",
+                price: 438,
+                oldPrice: 1300,
+                discount: "-65%",
+                rating: "4,8",
+                reviews: 512,
+                income: 8,
+                img: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 7,
+                title: "Беспроводные наушники Pro с шумоподавлением",
+                price: 1890,
+                oldPrice: 5900,
+                discount: "-68%",
+                rating: "4,7",
+                reviews: 890,
+                income: 35,
+                img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 8,
+                title: "Механическая клавиатура с RGB подсветкой для геймеров",
+                price: 4500,
+                oldPrice: 9000,
+                discount: "-50%",
+                rating: "4,9",
+                reviews: 310,
+                income: 80,
+                img: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&auto=format&fit=crop&q=80"
+            }
+        ];
 
         function updateUI() {
-            balanceEl.textContent = balance;
-            clickBtn.innerHTML = `ЗАБРАТЬ ПОСЫЛКУ<br><span style="font-size: 14px;">(+${clickPower} к балансу)</span>`;
-            upgradeBtn.textContent = `🛒 Купить хлам в ПВЗ (+5 к клику) — ${upgradeCost} 🫐`;
-            
-            if (balance >= upgradeCost) {
-                upgradeBtn.disabled = false;
-            } else {
-                upgradeBtn.disabled = true;
+            document.getElementById('balanceDisplay').textContent = `${balance.toLocaleString('ru-RU')} ₽`;
+            document.getElementById('dopamineDisplay').textContent = `${dopamine}% 🔥`;
+            document.getElementById('incomeDisplay').textContent = `+${incomePerSec.toLocaleString('ru-RU')} ₽/сек`;
+            document.getElementById('itemsDisplay').textContent = `${totalItems} шт.`;
+
+            // Обновление состояния кнопок покупки
+            products.forEach(p => {
+                const btn = document.getElementById(`btn-${p.id}`);
+                if (btn) {
+                    btn.disabled = balance < p.price;
+                }
+            });
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        function addTapMoney() {
+            balance += 100;
+            localStorage.setItem('vb_balance', balance);
+            updateUI();
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
             }
         }
 
-        // Клик по основной кнопке
-        clickBtn.addEventListener('click', () => {
-            balance += clickPower;
-            localStorage.setItem('berry_balance', balance);
-            updateUI();
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light'); // Вибрация при клике на телефоне
-            }
-        });
+        function buyProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product && balance >= product.price) {
+                balance -= product.price;
+                incomePerSec += product.income;
+                dopamine += 5;
+                totalItems += 1;
 
-        // Покупка апгрейда
-        upgradeBtn.addEventListener('click', () => {
-            if (balance >= upgradeCost) {
-                balance -= upgradeCost;
-                clickPower += 5;
-                upgradeCost = Math.floor(upgradeCost * 1.8);
+                // Увеличиваем цену товара после покупки (инфляция кликера)
+                product.price = Math.floor(product.price * 1.3);
+
+                localStorage.setItem('vb_balance', balance);
+                localStorage.setItem('vb_income', incomePerSec);
+                localStorage.setItem('vb_dopamine', dopamine);
+                localStorage.setItem('vb_items', totalItems);
+
+                renderProducts();
+                updateUI();
+                showToast(`💥 Куплено: ${product.title.substring(0, 18)}...! Доход +${product.income} ₽/с`);
                 
-                localStorage.setItem('berry_balance', balance);
-                localStorage.setItem('berry_power', clickPower);
-                localStorage.setItem('berry_cost', upgradeCost);
-                
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="img-wrapper">
+                        <img src="${p.img}" alt="${p.title}" loading="lazy">
+                        <div class="discount-badge">${p.discount}</div>
+                        <div class="heart-icon" onclick="showToast('❤️ Добавлено в вишлист!')">♡</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="price-row">
+                            <span class="price-new">${p.price.toLocaleString('ru-RU')} ₽</span>
+                            <span class="price-old">${p.oldPrice.toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                        <div class="hot-sale">🔥 ЖАРКИЕ СКИДКИ</div>
+                        <div class="title">${p.title}</div>
+                        <div class="rating">★ <strong>${p.rating}</strong> · ${p.reviews} оценки</div>
+                        <div class="income-tag">+${p.income} ₽ каждую секунду</div>
+                        <button class="buy-btn" id="btn-${p.id}" onclick="buyProduct(${p.id})">
+                            🛒 Завтра
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            updateUI();
+        }
+
+        // Пассивный доход каждую секунду
+        setInterval(() => {
+            if (incomePerSec > 0) {
+                balance += incomePerSec;
+                localStorage.setItem('vb_balance', balance);
                 updateUI();
             }
-        });
+        }, 1000);
 
-        // Просмотр рекламы Adsgram (Монетизация)
-        adBtn.addEventListener('click', () => {
+        // Кнопка рекламы Adsgram
+        document.getElementById('adButton').addEventListener('click', () => {
             if (AdController) {
-                AdController.show().then((result) => {
-                    // Пользователь успешно посмотрел рекламу до конца
-                    balance += 1000;
-                    localStorage.setItem('berry_balance', balance);
+                AdController.show().then(() => {
+                    balance += 5000;
+                    localStorage.setItem('vb_balance', balance);
                     updateUI();
-                    if (tg.showAlert) {
-                        tg.showAlert("Отлично! Вы получили +1000 ягод за просмотр рекламы!");
-                    } else {
-                        alert("Отлично! Вы получили +1000 ягод за просмотр рекламы!");
-                    }
-                }).catch((result) => {
-                    // Пользователь закрыл рекламу раньше времени или произошла ошибка загрузки
-                    if (tg.showAlert) {
-                        tg.showAlert("Реклама не досмотрена или сейчас нет доступных роялей. Попробуйте позже.");
-                    } else {
-                        alert("Реклама не досмотрена или сейчас нет доступных видео.");
-                    }
+                    showToast("🎉 Начислено +5 000 ₽ за просмотр рекламы!");
+                }).catch(() => {
+                    showToast("⚠️ Реклама сейчас недоступна. Попробуйте позже.");
                 });
             } else {
-                alert("Рекламный модуль Adsgram еще не подключен к вашему ID.");
+                balance += 5000;
+                updateUI();
+                showToast("🎁 Тестовый режим: +5 000 ₽ начислено!");
             }
         });
 
-        // Первичная отрисовка при запуске
-        updateUI();
+        // Первичная отрисовка
+        renderProducts();
     </script>
 </body>
 </html>
