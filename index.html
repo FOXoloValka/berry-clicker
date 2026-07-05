@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дикая Ягода - Симулятор Шопоголика</title>
+    <!-- Официальный скрипт Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Официальный скрипт рекламной сети Adsgram -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            user-select: none;
+        }
+        .header {
+            background-color: #4a0e78;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #e0b3ff;
+        }
+        .balance-container {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #00ffcc;
+        }
+        .click-btn {
+            background: linear-gradient(135deg, #8a2be2, #4a0e78);
+            border: 3px solid #cb80ff;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6);
+            transition: transform 0.1s;
+            margin-bottom: 25px;
+        }
+        .click-btn:active {
+            transform: scale(0.93);
+        }
+        .shop-section {
+            background-color: #16213e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+        .upgrade-btn, .ad-btn {
+            background-color: #0f3460;
+            border: 1px solid #00ffcc;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .ad-btn {
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 180, 219, 0.4);
+        }
+        .upgrade-btn:disabled {
+            border-color: #555555;
+            color: #777777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📦 ПВЗ «Дикая Ягода»</h1>
+        <p style="margin: 5px 0 0 0; font-size: 14px; color: #ccc;">Скупай хлам — получай дофамин!</p>
+    </div>
+
+    <div class="balance-container">
+        <span id="balance">0</span> 🫐
+    </div>
+
+    <button class="click-btn" id="clickBtn">ЗАБРАТЬ ПОСЫЛКУ<br><span style="font-size: 14px;">(+1 к балансу)</span></button>
+
+    <div class="shop-section">
+        <button class="ad-btn" id="adBtn">📺 Смотреть рекламу (+1000 🫐)</button>
+        <button class="upgrade-btn" id="upgradeBtn">🛒 Купить чехол для пульта (+5 к клику) — 50 🫐</button>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем игру на весь экран смартфона
+        tg.ready();
+
+        // Инициализация рекламного блока Adsgram
+        // Замечание: Номер "int-1234" ниже нужно будет заменить на твой реальный ID блока из кабинета Adsgram
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "int-1234" }) : null;
+
+        // Игровая логика и переменные
+        let balance = parseInt(localStorage.getItem('berry_balance')) || 0;
+        let clickPower = parseInt(localStorage.getItem('berry_power')) || 1;
+        let upgradeCost = parseInt(localStorage.getItem('berry_cost')) || 50;
+
+        const balanceEl = document.getElementById('balance');
+        const clickBtn = document.getElementById('clickBtn');
+        const upgradeBtn = document.getElementById('upgradeBtn');
+        const adBtn = document.getElementById('adBtn');
+
+        function updateUI() {
+            balanceEl.textContent = balance;
+            clickBtn.innerHTML = `ЗАБРАТЬ ПОСЫЛКУ<br><span style="font-size: 14px;">(+${clickPower} к балансу)</span>`;
+            upgradeBtn.textContent = `🛒 Купить хлам в ПВЗ (+5 к клику) — ${upgradeCost} 🫐`;
+            
+            if (balance >= upgradeCost) {
+                upgradeBtn.disabled = false;
+            } else {
+                upgradeBtn.disabled = true;
+            }
+        }
+
+        // Клик по основной кнопке
+        clickBtn.addEventListener('click', () => {
+            balance += clickPower;
+            localStorage.setItem('berry_balance', balance);
+            updateUI();
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light'); // Вибрация при клике на телефоне
+            }
+        });
+
+        // Покупка апгрейда
+        upgradeBtn.addEventListener('click', () => {
+            if (balance >= upgradeCost) {
+                balance -= upgradeCost;
+                clickPower += 5;
+                upgradeCost = Math.floor(upgradeCost * 1.8);
+                
+                localStorage.setItem('berry_balance', balance);
+                localStorage.setItem('berry_power', clickPower);
+                localStorage.setItem('berry_cost', upgradeCost);
+                
+                updateUI();
+            }
+        });
+
+        // Просмотр рекламы Adsgram (Монетизация)
+        adBtn.addEventListener('click', () => {
+            if (AdController) {
+                AdController.show().then((result) => {
+                    // Пользователь успешно посмотрел рекламу до конца
+                    balance += 1000;
+                    localStorage.setItem('berry_balance', balance);
+                    updateUI();
+                    if (tg.showAlert) {
+                        tg.showAlert("Отлично! Вы получили +1000 ягод за просмотр рекламы!");
+                    } else {
+                        alert("Отлично! Вы получили +1000 ягод за просмотр рекламы!");
+                    }
+                }).catch((result) => {
+                    // Пользователь закрыл рекламу раньше времени или произошла ошибка загрузки
+                    if (tg.showAlert) {
+                        tg.showAlert("Реклама не досмотрена или сейчас нет доступных роялей. Попробуйте позже.");
+                    } else {
+                        alert("Реклама не досмотрена или сейчас нет доступных видео.");
+                    }
+                });
+            } else {
+                alert("Рекламный модуль Adsgram еще не подключен к вашему ID.");
+            }
+        });
+
+        // Первичная отрисовка при запуске
+        updateUI();
+    </script>
+</body>
+</html>
